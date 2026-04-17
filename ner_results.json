@@ -1,0 +1,247 @@
+[
+  {
+    "word": "15.03.1968",
+    "entity_group": "DATE",
+    "score": 0.7,
+    "start": 278,
+    "end": 288
+  },
+  {
+    "word": "08.01.2025",
+    "entity_group": "DATE",
+    "score": 0.7,
+    "start": 689,
+    "end": 699
+  },
+  {
+    "word": "Kopfschmerzen",
+    "entity_group": "SYMPTOM",
+    "score": 0.85,
+    "start": 759,
+    "end": 772
+  },
+  {
+    "word": "Atemnot",
+    "entity_group": "SYMPTOM",
+    "score": 0.85,
+    "start": 814,
+    "end": 821
+  },
+  {
+    "word": "Müdigkeit",
+    "entity_group": "SYMPTOM",
+    "score": 0.85,
+    "start": 905,
+    "end": 914
+  },
+  {
+    "word": "Hypertonie",
+    "entity_group": "DIAGNOSIS",
+    "score": 0.9,
+    "start": 976,
+    "end": 986
+  },
+  {
+    "word": "Diabetes mellitus",
+    "entity_group": "DIAGNOSIS",
+    "score": 0.9,
+    "start": 1013,
+    "end": 1030
+  },
+  {
+    "word": "I10.00",
+    "entity_group": "DIAGNOSIS_CODE",
+    "score": 0.95,
+    "start": 1295,
+    "end": 1301
+  },
+  {
+    "word": "E11.90",
+    "entity_group": "DIAGNOSIS_CODE",
+    "score": 0.95,
+    "start": 1359,
+    "end": 1365
+  },
+  {
+    "word": "G47.31",
+    "entity_group": "DIAGNOSIS_CODE",
+    "score": 0.95,
+    "start": 1412,
+    "end": 1418
+  },
+  {
+    "word": "BMI 31,2",
+    "entity_group": "BMI",
+    "score": 0.8,
+    "start": 1515,
+    "end": 1523
+  },
+  {
+    "word": "2 kg",
+    "entity_group": "WEIGHT",
+    "score": 0.75,
+    "start": 1522,
+    "end": 1526
+  },
+  {
+    "word": "178 cm",
+    "entity_group": "HEIGHT",
+    "score": 0.75,
+    "start": 1544,
+    "end": 1550
+  },
+  {
+    "word": "99 kg",
+    "entity_group": "WEIGHT",
+    "score": 0.75,
+    "start": 1567,
+    "end": 1572
+  },
+  {
+    "word": "HbA1c",
+    "entity_group": "LAB_TEST",
+    "score": 0.85,
+    "start": 1995,
+    "end": 2000
+  },
+  {
+    "word": "142 mg",
+    "entity_group": "DOSAGE",
+    "score": 0.85,
+    "start": 2057,
+    "end": 2063
+  },
+  {
+    "word": "245 mg",
+    "entity_group": "DOSAGE",
+    "score": 0.85,
+    "start": 2097,
+    "end": 2103
+  },
+  {
+    "word": "LDL",
+    "entity_group": "LAB_TEST",
+    "score": 0.85,
+    "start": 2118,
+    "end": 2121
+  },
+  {
+    "word": "Cholesterin",
+    "entity_group": "LAB_TEST",
+    "score": 0.85,
+    "start": 2122,
+    "end": 2133
+  },
+  {
+    "word": "158 mg",
+    "entity_group": "DOSAGE",
+    "score": 0.85,
+    "start": 2135,
+    "end": 2141
+  },
+  {
+    "word": "HDL",
+    "entity_group": "LAB_TEST",
+    "score": 0.85,
+    "start": 2156,
+    "end": 2159
+  },
+  {
+    "word": "38 mg",
+    "entity_group": "DOSAGE",
+    "score": 0.85,
+    "start": 2173,
+    "end": 2178
+  },
+  {
+    "word": "210 mg",
+    "entity_group": "DOSAGE",
+    "score": 0.85,
+    "start": 2211,
+    "end": 2217
+  },
+  {
+    "word": "Kreatinin",
+    "entity_group": "LAB_TEST",
+    "score": 0.85,
+    "start": 2232,
+    "end": 2241
+  },
+  {
+    "word": "1,1 mg/dl",
+    "entity_group": "LAB_VALUE",
+    "score": 0.8,
+    "start": 2243,
+    "end": 2252
+  },
+  {
+    "word": "1 mg",
+    "entity_group": "DOSAGE",
+    "score": 0.85,
+    "start": 2245,
+    "end": 2249
+  },
+  {
+    "word": "Ramipril",
+    "entity_group": "MEDICATION",
+    "score": 0.9,
+    "start": 2526,
+    "end": 2534
+  },
+  {
+    "word": "5 mg",
+    "entity_group": "DOSAGE",
+    "score": 0.85,
+    "start": 2535,
+    "end": 2539
+  },
+  {
+    "word": "morgens",
+    "entity_group": "FREQUENCY",
+    "score": 0.8,
+    "start": 2549,
+    "end": 2556
+  },
+  {
+    "word": "Metformin",
+    "entity_group": "MEDICATION",
+    "score": 0.9,
+    "start": 2575,
+    "end": 2584
+  },
+  {
+    "word": "1000 mg",
+    "entity_group": "DOSAGE",
+    "score": 0.85,
+    "start": 2585,
+    "end": 2592
+  },
+  {
+    "word": "abends",
+    "entity_group": "FREQUENCY",
+    "score": 0.8,
+    "start": 2614,
+    "end": 2620
+  },
+  {
+    "word": "20 mg",
+    "entity_group": "DOSAGE",
+    "score": 0.85,
+    "start": 2655,
+    "end": 2660
+  },
+  {
+    "word": "100 mg",
+    "entity_group": "DOSAGE",
+    "score": 0.85,
+    "start": 2699,
+    "end": 2705
+  },
+  {
+    "word": "täglich",
+    "entity_group": "FREQUENCY",
+    "score": 0.8,
+    "start": 3050,
+    "end": 3057
+  }
+]
