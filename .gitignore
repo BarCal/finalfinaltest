@@ -1,1 +1,1 @@
-Nothing should be ignored based on the provided file changes. The only added file is `ner_extractor.py`, which is a Python source code file and should not be ignored.
+(database.py is a source file, so no need to ignore it)
