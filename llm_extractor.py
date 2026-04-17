@@ -13,97 +13,103 @@ import ollama
 
 def extract_fallback(content):
     """Fallback extraction using regex when Ollama is unavailable."""
-    # Extract diagnoses
+    import re
+    
+    # Extract diagnoses - look for pattern like "1. Essentielle Hypertonie, Grad II (ICD-10: I10.00)"
     diagnosen = []
-    diag_pattern = r'Diagnose.*?:\s*(.+?)\s*\((ICD-\d+[.-]\w+)\)'
+    diag_pattern = r'(\d+\.\s+[^(]+)\s*\(ICD[- ]?10:\s*([A-Z]\d+(?:\.\d+)?)\)'
     for match in re.finditer(diag_pattern, content, re.IGNORECASE):
-        diagnosen.append({"bezeichnung": match.group(1).strip(), "icd10": match.group(2)})
+        bezeichnung = match.group(1).strip()
+        icd10 = match.group(2)
+        diagnosen.append({"bezeichnung": bezeichnung, "icd10": icd10})
     
-    # If no ICD pattern found, try simpler pattern
+    # If no diagnoses found with ICD pattern, try simpler approach
     if not diagnosen:
-        simple_diag = re.findall(r'(I\d+\.\d+)[-\s]+([^\n]+)', content)
-        for icd, desc in simple_diag:
-            diagnosen.append({"bezeichnung": desc.strip(), "icd10": icd})
-    
-    # If still no diagnoses, look for lines after "Diagnose"
-    if not diagnosen:
-        diagnose_section = re.search(r'Diagnose:\s*(.*?)(?=Befund|Medikation|$)', content, re.DOTALL | re.IGNORECASE)
+        # Look for section and extract lines
+        diagnose_section = re.search(r'DIAGNOSE:(.*?)(?=BEFUND|MEDIKATION|$)', content, re.DOTALL | re.IGNORECASE)
         if diagnose_section:
             lines = diagnose_section.group(1).strip().split('\n')
             for line in lines:
                 line = line.strip()
-                if line and not line.startswith('-'):
-                    # Try to extract ICD code from the line
-                    icd_match = re.search(r'([A-Z]\d+\.\d+)', line)
+                if line and re.match(r'\d+\.', line):
+                    # Try to extract ICD code
+                    icd_match = re.search(r'([A-Z]\d+(?:\.\d+)?)', line)
                     if icd_match:
                         icd = icd_match.group(1)
-                        desc = line.replace(icd, '').replace('-', '').strip()
+                        desc = re.sub(r'\(ICD[- ]?10:.*?\)|ICD[- ]?\d+\.?\d*', '', line).strip(' -.')
                         diagnosen.append({"bezeichnung": desc, "icd10": icd})
                     else:
                         diagnosen.append({"bezeichnung": line, "icd10": "N/A"})
     
-    # Extract medications
+    # Extract medications - pattern: "1. Ramipril 5 mg – 1-0-0 (morgens eine Tablette)"
     medikamente = []
-    lines = content.split('\n')
-    in_meds = False
-    for line in lines:
-        if 'Medikation' in line or 'Medikamente' in line:
-            in_meds = True
-            continue
-        if in_meds and ('Empfehlung' in line or 'Grüße' in line or 'Mit freundlichen' in line or 'Anamnese' in line or 'Befund' in line):
-            in_meds = False
-            continue
-        if in_meds and line.strip():
-            # Parse medication line like "Metformin 500mg 2x täglich"
-            parts = line.strip().split()
-            if len(parts) >= 2:
-                name = parts[0]
-                dosierung = ""
-                frequenz = ""
-                for i, p in enumerate(parts[1:], 1):
-                    if any(c.isdigit() for c in p):
-                        dosierung = p
-                        if i+1 < len(parts):
-                            frequenz = ' '.join(parts[i+1:])
-                        else:
-                            frequenz = "täglich"
-                        break
-                if not dosierung and len(parts) >= 3:
-                    dosierung = parts[1]
-                    frequenz = ' '.join(parts[2:])
-                if not frequenz:
-                    frequenz = "täglich"
-                if name and dosierung:
-                    medikamente.append({"name": name, "dosierung": dosierung, "frequenz": frequenz})
+    med_pattern = r'(\d+\.\s*)([A-Za-zäöüßÄÖÜ]+(?:\s+[A-Za-zäöüßÄÖÜ]+)*)\s+(\d+(?:\.\d+)?\s*(?:mg|µg|g))\s*[–-]\s*([\d\-]+)\s*\(([^)]+)\)'
+    for match in re.finditer(med_pattern, content, re.IGNORECASE):
+        name = match.group(2).strip()
+        dosierung = match.group(3).strip()
+        frequenz = match.group(5).strip()
+        medikamente.append({"name": name, "dosierung": dosierung, "frequenz": frequenz})
     
-    # Extract symptoms from Anamnese
+    # Alternative simpler medication pattern
+    if not medikamente:
+        med_section = re.search(r'MEDIKATION:(.*?)(?=EMPFEHLUNG|BEFUND|$)', content, re.DOTALL | re.IGNORECASE)
+        if med_section:
+            lines = med_section.group(1).strip().split('\n')
+            for line in lines:
+                line = line.strip()
+                if re.match(r'\d+\.', line):
+                    parts = re.split(r'\s*[–-]\s*', line)
+                    if len(parts) >= 2:
+                        # Extract name and dosage from first part
+                        first_part = re.sub(r'^\d+\.\s*', '', parts[0])
+                        name_match = re.match(r'([A-Za-zäöüßÄÖÜ]+(?:\s+[A-Za-zäöüßÄÖÜ]+)*)\s*(\d+(?:\.\d+)?\s*(?:mg|µg|g))?', first_part)
+                        if name_match:
+                            name = name_match.group(1).strip()
+                            dosierung = name_match.group(2).strip() if name_match.group(2) else "N/A"
+                            frequenz = parts[1].strip() if len(parts) > 1 else "täglich"
+                            # Clean up frequenz
+                            frequenz = re.sub(r'\([^)]*\)', lambda m: m.group(0).strip('()'), frequenz).strip()
+                            if name:
+                                medikamente.append({"name": name, "dosierung": dosierung, "frequenz": frequenz})
+    
+    # Extract symptoms from Anamnese section
     symptome = []
-    anamnese_match = re.search(r'Anamnese:\s*(.*?)(?=Diagnose|Befund|$)', content, re.DOTALL)
+    anamnese_match = re.search(r'ANAMNESE:(.*?)(?=DIAGNOSE|BEFUND|$)', content, re.DOTALL | re.IGNORECASE)
     if anamnese_match:
         anamnese_text = anamnese_match.group(1)
-        symptom_keywords = ['Husten', 'Fieber', 'Schmerzen', 'Müdigkeit', 'Übelkeit', 'Kopfschmerzen', 'Schwindel', 'Atemnot', 'Appetitlosigkeit']
+        # Common German symptom keywords
+        symptom_keywords = [
+            'Kopfschmerzen', 'Schwindel', 'Atemnot', 'Schwitzen', 'Müdigkeit',
+            'Husten', 'Fieber', 'Schmerzen', 'Übelkeit', 'Erbrechen',
+            'Durchfall', 'Appetitlosigkeit', 'Gewichtsverlust', 'Herzrasen'
+        ]
         for kw in symptom_keywords:
             if kw.lower() in anamnese_text.lower():
                 symptome.append(kw)
     
-    # Extract recommendations
+    # Extract recommendations from Empfehlung section
     empfehlungen = []
-    empf_match = re.search(r'Empfehlung:\s*(.*?)(?=Grüße|Mit freundlichen|Anamnese|$)', content, re.DOTALL)
+    empf_match = re.search(r'EMPFEHLUNG:(.*?)(?=Bei |Für |Mit freundlichen|Grüße|$)', content, re.DOTALL | re.IGNORECASE)
     if empf_match:
-        empf_text = empf_match.group(1)
-        for line in empf_text.split('\n'):
-            line = line.strip()
-            if line and not line.startswith('-') and 'Datum' not in line:
-                empfehlungen.append(line)
+        emp_text = empf_match.group(1)
+        for line in emp_text.split('\n'):
+            line = line.strip().lstrip('-').strip()
+            if line and len(line) > 15 and 'Datum' not in line and 'Vorstellung' not in line[:20]:
+                # Clean up the line
+                line = re.sub(r'^-\s*', '', line).strip()
+                if line:
+                    empfehlungen.append(line)
     
-    # Generate summary
-    zusammenfassung = "Patient wurde mit typischen Symptomen vorgestellt. Diagnose bestätigt durch Befunde. Medikation angepasst und Empfehlungen zur weiteren Behandlung gegeben."
+    # Generate a meaningful summary based on extracted data
+    diag_summary = ", ".join([d["bezeichnung"].split('(')[0].strip() for d in diagnosen[:2]]) if diagnosen else "unbekannte Diagnosen"
+    med_summary = f"{len(medikamente)} Medikamente" if medikamente else "keine Medikamente"
+    zusammenfassung = f"Patient stellte sich mit Symptomen vor. Diagnosen: {diag_summary}. {med_summary} verordnet. Weitere Untersuchungen und Verlaufskontrollen empfohlen."
     
     result = {
-        "diagnosen": diagnosen if diagnosen else [{"bezeichnung": "Unbekannt", "icd10": "Z00.0"}],
-        "medikamente": medikamente if medikamente else [{"name": "Unbekannt", "dosierung": "N/A", "frequenz": "täglich"}],
-        "symptome": symptome if symptome else ["Allgemeine Beschwerden"],
-        "empfehlungen": empfehlungen if empfehlungen else ["Weiterbehandlung nach Plan"],
+        "diagnosen": diagnosen if diagnosen else [{"bezeichnung": "Keine Diagnosen extrahiert", "icd10": ""}],
+        "medikamente": medikamente if medikamente else [{"name": "Keine Medikamente extrahiert", "dosierung": "", "frequenz": ""}],
+        "symptome": symptome if symptome else ["Keine Symptome explizit dokumentiert"],
+        "empfehlungen": empfehlungen if empfehlungen else ["Weiterbehandlung nach ärztlichem Ermessen"],
         "zusammenfassung": zusammenfassung
     }
     

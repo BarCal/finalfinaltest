@@ -1,30 +1,55 @@
 {
   "diagnosen": [
     {
-      "bezeichnung": "1. Essentielle Hypertonie, Grad II (ICD10: )",
+      "bezeichnung": "1. Essentielle Hypertonie, Grad II",
       "icd10": "I10.00"
     },
     {
-      "bezeichnung": "2. Typ2Diabetes mellitus ohne Komplikationen (ICD10: )",
+      "bezeichnung": "2. Typ-2-Diabetes mellitus ohne Komplikationen",
       "icd10": "E11.90"
     },
     {
-      "bezeichnung": "3. Verdacht auf SchlafapnoeSyndrom (ICD10: ) – weitere Abklärung empfohlen",
+      "bezeichnung": "3. Verdacht auf Schlafapnoe-Syndrom",
       "icd10": "G47.31"
     }
   ],
   "medikamente": [
     {
-      "name": "Unbekannt",
-      "dosierung": "N/A",
-      "frequenz": "täglich"
+      "name": "Ramipril",
+      "dosierung": "5 mg",
+      "frequenz": "morgens eine Tablette"
+    },
+    {
+      "name": "Metformin",
+      "dosierung": "1000 mg",
+      "frequenz": "morgens und abends je eine Tablette"
+    },
+    {
+      "name": "Atorvastatin",
+      "dosierung": "20 mg",
+      "frequenz": "abends eine Tablette"
+    },
+    {
+      "name": "ASS",
+      "dosierung": "100 mg",
+      "frequenz": "morgens eine Tablette zur Thromboseprophylaxe"
     }
   ],
   "symptome": [
-    "Allgemeine Beschwerden"
+    "Kopfschmerzen",
+    "Schwindel",
+    "Atemnot",
+    "Schwitzen",
+    "Müdigkeit",
+    "Schmerzen"
   ],
   "empfehlungen": [
-    "Weiterbehandlung nach Plan"
+    "Regelmäßige Blutdruckselbstmessung (morgens und abends) mit Führung eines",
+    "Blutdrucktagebuches",
+    "Ernährungsberatung hinsichtlich mediterraner Diät empfohlen",
+    "Gewichtsreduktion durch kalorienarme Ernährung und regelmäßige Bewegung",
+    "(mindestens 30 Minuten zügiges Gehen täglich)",
+    "Laborkontrolle (HbA1c, Lipidprofil, Nierenfunktion) in 3 Monaten"
   ],
-  "zusammenfassung": "Patient wurde mit typischen Symptomen vorgestellt. Diagnose bestätigt durch Befunde. Medikation angepasst und Empfehlungen zur weiteren Behandlung gegeben."
+  "zusammenfassung": "Patient stellte sich mit Symptomen vor. Diagnosen: 1. Essentielle Hypertonie, Grad II, 2. Typ-2-Diabetes mellitus ohne Komplikationen. 4 Medikamente verordnet. Weitere Untersuchungen und Verlaufskontrollen empfohlen."
 }
