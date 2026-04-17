@@ -1,0 +1,30 @@
+{
+  "diagnosen": [
+    {
+      "bezeichnung": "1. Essentielle Hypertonie, Grad II (ICD10: )",
+      "icd10": "I10.00"
+    },
+    {
+      "bezeichnung": "2. Typ2Diabetes mellitus ohne Komplikationen (ICD10: )",
+      "icd10": "E11.90"
+    },
+    {
+      "bezeichnung": "3. Verdacht auf SchlafapnoeSyndrom (ICD10: ) – weitere Abklärung empfohlen",
+      "icd10": "G47.31"
+    }
+  ],
+  "medikamente": [
+    {
+      "name": "Unbekannt",
+      "dosierung": "N/A",
+      "frequenz": "täglich"
+    }
+  ],
+  "symptome": [
+    "Allgemeine Beschwerden"
+  ],
+  "empfehlungen": [
+    "Weiterbehandlung nach Plan"
+  ],
+  "zusammenfassung": "Patient wurde mit typischen Symptomen vorgestellt. Diagnose bestätigt durch Befunde. Medikation angepasst und Empfehlungen zur weiteren Behandlung gegeben."
+}
