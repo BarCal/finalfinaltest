@@ -1,0 +1,10 @@
+{
+    "patient_name": "Herr Michael Weber",
+    "geburtsdatum": "1968-03-15",
+    "address": "Hauptstraße 42, 80335 München",
+    "krankenkasse": "AOK Bayern",
+    "versicherungsnummer": "W123456789",
+    "behandlungsdatum": "2025-01-12",
+    "arzt_name": "Dr. med. Thomas Müller",
+    "arzt_fachrichtung": "Facharzt für Innere Medizin | Allgemeinmedizin"
+}
