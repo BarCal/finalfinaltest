@@ -2,10 +2,11 @@
 """
 NER Extractor using GerMedBERT/medbert-512 for German medical texts.
 Handles 512 token limit by chunking with overlap and merging results.
+Falls back to rule-based NER if the model is unavailable (gated repo).
 """
 
 import json
-from transformers import pipeline
+import re
 from collections import defaultdict
 
 def chunk_text(text, chunk_size=400, overlap=50):
@@ -86,6 +87,57 @@ def deduplicate_entities(entities):
     return list(seen.values())
 
 
+def rule_based_ner(text):
+    """
+    Fallback rule-based NER extraction when model is unavailable.
+    Extracts common medical entities using regex patterns.
+    """
+    entities = []
+    
+    # Patterns for different entity types
+    patterns = [
+        # Diagnoses / ICD codes
+        (r'\b([A-Z]\d{2}\.\d+)\b', 'DIAGNOSIS_CODE', 0.95),
+        (r'(Diabetes mellitus|Hypertonie|COPD|Asthma|Infekt)', 'DIAGNOSIS', 0.9),
+        
+        # Medications
+        (r'\b(Metformin|Ramipril|Bisoprolol|Aspirin|Ibuprofen|Paracetamol|Omeprazol|Simvastatin)\b', 'MEDICATION', 0.9),
+        (r'\b(\d+\s*mg)\b', 'DOSAGE', 0.85),
+        (r'\b(1x|2x|3x|täglich|morgens|abends|nach Bedarf)\b', 'FREQUENCY', 0.8),
+        
+        # Symptoms
+        (r'\b(Husten|Fieber|Schmerzen|Müdigkeit|Übelkeit|Kopfschmerzen|Schwindel|Atemnot)\b', 'SYMPTOM', 0.85),
+        
+        # Lab values
+        (r'\b(\d+,\d+\s*(mg/dl|mmol/l|U/l|g/l))\b', 'LAB_VALUE', 0.8),
+        (r'\b(HbA1c|Cholesterin|LDL|HDL|Triglyceride|Kreatinin)\b', 'LAB_TEST', 0.85),
+        
+        # Body measurements
+        (r'\b(\d+\s*cm)\b', 'HEIGHT', 0.75),
+        (r'\b(\d+\s*kg)\b', 'WEIGHT', 0.75),
+        (r'\b(BMI\s*[:=]?\s*\d+,\d+|\d+,\d+\s*BMI)\b', 'BMI', 0.8),
+        
+        # Dates
+        (r'\b(\d{1,2}\.\d{1,2}\.\d{4})\b', 'DATE', 0.7),
+        
+        # Names (crude approximation)
+        (r'\b(Dr\.\s+(?:med\.)?\s*[A-Z][a-z]+\s+[A-Z][a-z]+)\b', 'DOCTOR_NAME', 0.8),
+        (r'\b(?:Herr|Frau)\s+([A-Z][a-z]+\s+[A-Z][a-z]+)\b', 'PATIENT_NAME', 0.75),
+    ]
+    
+    for pattern, entity_type, base_score in patterns:
+        for match in re.finditer(pattern, text, re.IGNORECASE):
+            entities.append({
+                'word': match.group(0),
+                'entity_group': entity_type,
+                'score': base_score,
+                'start': match.start(),
+                'end': match.end()
+            })
+    
+    return entities
+
+
 def print_entity_table(entities):
     """
     Print a formatted table of entities.
@@ -135,7 +187,11 @@ def main():
     print("Loading GerMedBERT/medbert-512 model...")
     print("(This may take a moment on first run)")
     
+    use_fallback = False
+    ner = None
+    
     try:
+        from transformers import pipeline
         ner = pipeline(
             "ner", 
             model="GerMedBERT/medbert-512",
@@ -143,16 +199,20 @@ def main():
             device=-1  # Use CPU; set to 0 for GPU if available
         )
     except Exception as e:
-        print(f"Error loading model: {e}")
-        print("Make sure you have installed: pip install transformers torch")
-        return
+        print(f"Warning: Could not load GerMedBERT model ({e})")
+        print("Using fallback rule-based NER extraction...")
+        use_fallback = True
     
-    print("Splitting text into chunks (400 tokens, 50 token overlap)...")
-    chunks = chunk_text(text, chunk_size=400, overlap=50)
-    print(f"Created {len(chunks)} chunk(s)")
-    
-    print("Running NER on chunks...")
-    all_entities = run_ner_on_chunks(chunks, ner)
+    if use_fallback:
+        print("Running rule-based NER extraction...")
+        all_entities = rule_based_ner(text)
+    else:
+        print("Splitting text into chunks (400 tokens, 50 token overlap)...")
+        chunks = chunk_text(text, chunk_size=400, overlap=50)
+        print(f"Created {len(chunks)} chunk(s)")
+        
+        print("Running NER on chunks...")
+        all_entities = run_ner_on_chunks(chunks, ner)
     
     print("Deduplicating entities...")
     unique_entities = deduplicate_entities(all_entities)
